@@ -1,8 +1,13 @@
 apply plugin: "war"
 
 buildscript {
+	repositories {
+		maven {
+			url(new File(projectDir.parentFile.parentFile, 'repo').toURI())
+		}
+	}
 	dependencies {
-		classpath fileTree(dir: "../../typescript-gradle-plugin/build/libs", include: '*.jar') 
+		classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:0.1-SNAPSHOT'
 	}
 }
 

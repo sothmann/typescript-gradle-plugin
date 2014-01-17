@@ -1,4 +1,4 @@
-package tsgradleplugin;
+package de.richsource.gradle.plugins.typescript;
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFiles
