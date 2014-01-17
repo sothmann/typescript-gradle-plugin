@@ -1,0 +1,23 @@
+apply plugin: "war"
+
+buildscript {
+	dependencies {
+		classpath fileTree(dir: "../../typescript-gradle-plugin/build/libs", include: '*.jar') 
+	}
+}
+
+apply plugin: "typescript"
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+    providedCompile "javax.servlet:servlet-api:2.5"
+}
+
+war {
+	into("js") {
+		from compileTypeScript.outputs
+	}
+}
