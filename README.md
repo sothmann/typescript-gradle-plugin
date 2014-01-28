@@ -40,7 +40,7 @@ Next, apply the plugin.
 You can configure the TypeScript compile task as shown below:
 
 	compileTypeScript {
-		declaration = true
+		sourcemap = true
 		// additional configuration options
 	}
 	
@@ -50,18 +50,18 @@ You can configure the TypeScript compile task as shown below:
 
 # Available configuration options
 
-Here is a list of the available configuration options of the compileTypeScript task
+Here is a list of the available configuration options of the _compileTypeScript_ task:
 
-* source - required, (Set<File>) a set of files or directories to compile
-* outputDir - optional, (File) the output directory
-* out - (optional), (File) Concatenate and emit output to single file
-* module - (optional), (de.richsource.gradle.plugins.typescript.Module) Specify module code generation (AMD or COMMONJS)
-* target - (optional), (de.richsource.gradle.plugins.typescript.Target) Specify ECMAScript target version (ES3 or ES5)
-* declaration - (optional), (boolean) Generates corresponding .d.ts file
-* noImplicitAny - (optional), (boolean) Warn on expressions and declarations with an implied 'any' type
-* noResolve - (optional), (boolean) Skip resolution and preprocessing
-* removeComments - (optional), (boolean) Do not emit comments to output
-* sourcemap - (optional), (boolean) Generates corresponding .map file
-* sourceRoot - (optional), (File) Specifies the location where debugger should locate TypeScript files instead of source locations
-* codepage - (optional), (Integer) Specify the codepage to use when opening source files
-* mapRoot - (optional), (File) Specifies the location where debugger should locate map files instead of generated locations
+* *source* - (Set<File>) a set of files or directories to compile, defaults to src/main/ts
+* *outputDir* - (File) the output directory, defaults to _buildDir_/ts
+* *out* - (File) Concatenate and emit output to single file
+* *module* - (de.richsource.gradle.plugins.typescript.Module) Specify module code generation (AMD or COMMONJS)
+* *target* - (de.richsource.gradle.plugins.typescript.Target) Specify ECMAScript target version (ES3 or ES5)
+* *declaration* - (boolean) Generates corresponding .d.ts file
+* *noImplicitAny* - (boolean) Warn on expressions and declarations with an implied 'any' type
+* *noResolve* - (boolean) Skip resolution and preprocessing
+* *removeComments* - (boolean) Do not emit comments to output
+* *sourcemap* - (boolean) Generates corresponding .map file
+* *sourceRoot* - (File) Specifies the location where debugger should locate TypeScript files instead of source locations
+* *codepage* - (Integer) Specify the codepage to use when opening source files
+* *mapRoot* - (File) Specifies the location where debugger should locate map files instead of generated locations
