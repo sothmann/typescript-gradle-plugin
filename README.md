@@ -7,6 +7,10 @@ Among other things, the plugin provides a task to run the TypeScript compiler.
 
 Several example projects can be found in [/examples](examples).
 
+# Prerequisites
+
+You need to have the TypeScript command line compiler available on your system, as this Gradle plugin uses the TypeScript command line compiler internally.
+
 # Quickstart
 
 This will guide you through the steps needed to set up typescript-gradle-plugin for a TypeScript application project using Maven/Gradle standard layout.
@@ -39,8 +43,14 @@ You can configure the TypeScript compile task as shown below:
 		declaration = true
 		// additional configuration options
 	}
+	
+## Run the TypeScript compiler
 
-# Available configuration options for the compileTypeScript task
+	gradle compileTypeScript
+
+# Available configuration options
+
+Here is a list of the available configuration options of the compileTypeScript task
 
 * source - required, (Set<File>) a set of files or directories to compile
 * outputDir - optional, (File) the output directory
