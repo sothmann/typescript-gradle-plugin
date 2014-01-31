@@ -22,12 +22,12 @@ As this is not a core Gradle plugin, you have to ensure, that Gradle knows how t
     buildscript {
         repositories {
             maven {
-                url 'https://github.com/sothmann/typescript-gradle-plugin/repo/'
+                url 'https://github.com/sothmann/typescript-gradle-plugin/raw/mavenrepo/'
             }
             mavenCentral()
         }
         dependencies {
-            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:0.1'
+            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0'
         }
     }
 
