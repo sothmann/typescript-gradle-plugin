@@ -3,11 +3,11 @@ apply plugin: "war"
 buildscript {
 	repositories {
 		maven {
-			url(new File(projectDir.parentFile.parentFile, 'repo').toURI())
+			url("https://github.com/sothmann/typescript-gradle-plugin/raw/mavenrepo/")
 		}
 	}
 	dependencies {
-		classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.1-SNAPSHOT'
+		classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.1'
 	}
 }
 
