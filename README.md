@@ -65,3 +65,4 @@ Here is a list of the available configuration options of the _compileTypeScript_
 * *sourceRoot* - (File) Specifies the location where debugger should locate TypeScript files instead of source locations
 * *codepage* - (Integer) Specify the codepage to use when opening source files
 * *mapRoot* - (File) Specifies the location where debugger should locate map files instead of generated locations
+* *compilerExecutable* - (String) The tsc compiler executable to use. Defaults to "tsc".

@@ -38,12 +38,13 @@ public class CompileTypeScript extends DefaultTask {
 	@Input @Optional File sourceRoot
 	@Input @Optional Integer codepage
 	@Input @Optional File mapRoot
+	String compilerExecutable = "tsc"
 	
 	@TaskAction
 	void compile() {
 		println "compiling TypeScript files..."
 		project.exec {
-			executable = "tsc"
+			executable = compilerExecutable
 			List<File> files = source.collect { File source ->
 				if(!source.isDirectory())
 					return source
