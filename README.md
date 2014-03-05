@@ -27,7 +27,7 @@ As this is not a core Gradle plugin, you have to ensure, that Gradle knows how t
             mavenCentral()
         }
         dependencies {
-            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.1'
+            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.2'
         }
     }
 
@@ -65,7 +65,7 @@ Here is a list of the available configuration options of the _compileTypeScript_
 * *sourceRoot* - (File) Specifies the location where debugger should locate TypeScript files instead of source locations
 * *codepage* - (Integer) Specify the codepage to use when opening source files
 * *mapRoot* - (File) Specifies the location where debugger should locate map files instead of generated locations
-* *compilerExecutable* - (String) The tsc compiler executable to use. Defaults to "tsc".
+* *compilerExecutable* - (String) The tsc compiler executable to use. Defaults to "tsc.cmd" on windows and "tsc" on other systems.
 
 # Integrating the compiled files into a WAR file (for Java Webapps)
 
