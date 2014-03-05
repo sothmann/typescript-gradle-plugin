@@ -1,17 +1,17 @@
 apply plugin: "war"
+apply plugin: "eclipse"
+apply plugin: "typescript"
 
 buildscript {
 	repositories {
 		maven {
-			url("https://github.com/sothmann/typescript-gradle-plugin/raw/mavenrepo/")
+			url(new File(projectDir.parentFile.parentFile, 'repo').toURI())
 		}
 	}
 	dependencies {
-		classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.1'
+		classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.2-SNAPSHOT'
 	}
 }
-
-apply plugin: "typescript"
 
 repositories {
 	mavenCentral()
@@ -29,4 +29,5 @@ war {
 
 compileTypeScript {
 	declaration = true
+  target = "ES5"
 }
