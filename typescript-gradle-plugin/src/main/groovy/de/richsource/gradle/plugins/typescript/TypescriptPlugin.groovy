@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Sönke Sothmann
+ * Copyright (C) 2014 SÃ¶nke Sothmann
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,8 @@ class TypescriptPlugin implements Plugin<Project> {
 
 	public void apply(Project project) {
 		project.tasks.create("compileTypeScript", CompileTypeScript) {
-			source += project.file("src/main/ts")
+			source = project.file('src/main/ts')
+			include '**/*.ts'
 			outputDir = project.file("${project.buildDir}/ts")
 		}
 	}

@@ -52,7 +52,7 @@ You can configure the TypeScript compile task as shown below:
 
 Here is a list of the available configuration options of the _compileTypeScript_ task:
 
-* *source* - (Set<File>) a set of files or directories to compile, defaults to src/main/ts
+* *source* - (File) directories to compile, defaults to src/main/ts
 * *outputDir* - (File) the output directory, defaults to _buildDir_/ts
 * *out* - (File) Concatenate and emit output to single file
 * *module* - (de.richsource.gradle.plugins.typescript.Module) Specify module code generation (AMD or COMMONJS)
@@ -80,4 +80,12 @@ In the example below, the compiled files will be put into the js directory in th
     		into("js") {
         		from compileTypeScript.outputs
     		}
+	}
+
+# Configuring multiple source directories
+
+You can configure the TypeScript compile task to use multiple source directories as shown below:
+
+	compileTypeScript {
+		source = [file("src/main/ts"), file("src/main/additionalts")]
 	}

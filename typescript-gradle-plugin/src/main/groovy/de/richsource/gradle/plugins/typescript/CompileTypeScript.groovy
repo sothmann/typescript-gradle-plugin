@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2014 Sönke Sothmann
+ * Copyright (C) 2014 SÃ¶nke Sothmann
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package de.richsource.gradle.plugins.typescript;
 
-import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional;
@@ -25,9 +25,8 @@ import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction
 import org.apache.tools.ant.taskdefs.condition.Os
 
-public class CompileTypeScript extends DefaultTask {
-	
-	@InputFiles Set<File> source = [] as Set;
+public class CompileTypeScript extends SourceTask {
+
 	@OutputDirectory @Optional File outputDir;
 	@Input @Optional File out
 	@Input @Optional Module module
@@ -41,60 +40,62 @@ public class CompileTypeScript extends DefaultTask {
 	@Input @Optional Integer codepage
 	@Input @Optional File mapRoot
 	@Input String compilerExecutable = Os.isFamily(Os.FAMILY_WINDOWS) ? "tsc.cmd" : "tsc"
-  @OutputFile
-  File tsCompilerArgs = new File("${project.buildDir}/tsCompiler.args")
-	
+	File tsCompilerArgs = File.createTempFile("tsCompiler-", ".args")
+
 	@TaskAction
 	void compile() {
-		println "compiling TypeScript files..."
-    
-    List<File> files = source.collect { File source ->
-      if(!source.isDirectory())
-        return source
-      return project.fileTree(source) { include "**/*.ts" }.files
-    }.flatten()
-    
-    if(outputDir) {
-      tsCompilerArgs.append(" --outDir " + outputDir.toString())
-    }
-    if(out) {
-      tsCompilerArgs.append(" --out " + out)
-    }
-    if(module) {
-      tsCompilerArgs.append(" --module " + module.name().toLowerCase())
-    }
-    if(target) {
-      tsCompilerArgs.append(" --target " + target.name())
-    }
-    if(declaration) {
-      tsCompilerArgs.append(" --declaration")
-    }
-    if(noImplicitAny) {
-      tsCompilerArgs.append(" --noImplicitAny")
-    }
-    if(noResolve) {
-      tsCompilerArgs.append(" --noResolve")
-    }
-    if(codepage) {
-      tsCompilerArgs.append(" --codepage " + codepage)
-    }
-    if(mapRoot) {
-      tsCompilerArgs.append(" --mapRoot " + mapRoot)
-    }
-    if(removeComments) {
-      tsCompilerArgs.append(" --removeComments")
-    }
-    if(sourcemap) {
-      tsCompilerArgs.append(" --sourcemap")
-    }
-    if(sourceRoot) {
-      tsCompilerArgs.append(" --sourceRoot " + sourceRoot)
-    }
-    tsCompilerArgs.append(" " + files.join(" "))
-    
+		tsCompilerArgs.deleteOnExit()
+		
+		logger.info "compiling TypeScript files..."
+
+		List<String> files = source.collect{ File f -> f.toString(); };
+		logger.debug("TypeScript files to compile: " + files.join(" "));
+
+		if(outputDir) {
+			tsCompilerArgs.append(" --outDir " + outputDir.toString())
+		}
+		if(out) {
+			tsCompilerArgs.append(" --out " + out)
+		}
+		if(module) {
+			tsCompilerArgs.append(" --module " + module.name().toLowerCase())
+		}
+		if(target) {
+			tsCompilerArgs.append(" --target " + target.name())
+		}
+		if(declaration) {
+			tsCompilerArgs.append(" --declaration")
+		}
+		if(noImplicitAny) {
+			tsCompilerArgs.append(" --noImplicitAny")
+		}
+		if(noResolve) {
+			tsCompilerArgs.append(" --noResolve")
+		}
+		if(codepage) {
+			tsCompilerArgs.append(" --codepage " + codepage)
+		}
+		if(mapRoot) {
+			tsCompilerArgs.append(" --mapRoot " + mapRoot)
+		}
+		if(removeComments) {
+			tsCompilerArgs.append(" --removeComments")
+		}
+		if(sourcemap) {
+			tsCompilerArgs.append(" --sourcemap")
+		}
+		if(sourceRoot) {
+			tsCompilerArgs.append(" --sourceRoot " + sourceRoot)
+		}
+		tsCompilerArgs.append(" " + files.join(" "))
+
+		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgs.text);
+		
 		project.exec {
 			executable = compilerExecutable
-			args "@" + tsCompilerArgs
+			args '@' + tsCompilerArgs
 		}
+		
+		logger.info "Done TypeScript compilation."
 	}
 }
