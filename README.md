@@ -9,7 +9,11 @@ Several example projects can be found in [/examples](examples).
 
 # Prerequisites
 
-You need to have the TypeScript command line compiler available on your system, as this Gradle plugin uses the TypeScript command line compiler internally.
+You need to have installed node.js and installed the typescript node module:
+
+	npm install -g typescript
+	
+Alternatively on windows you can install the Typescript SDK and configure the `compilerExecutable` config option to `tsc` - see *Available configuration options*.
 
 # Quickstart
 
@@ -65,7 +69,7 @@ Here is a list of the available configuration options of the _compileTypeScript_
 * *sourceRoot* - (File) Specifies the location where debugger should locate TypeScript files instead of source locations
 * *codepage* - (Integer) Specify the codepage to use when opening source files
 * *mapRoot* - (File) Specifies the location where debugger should locate map files instead of generated locations
-* *compilerExecutable* - (String) The tsc compiler executable to use. Defaults to "tsc.cmd" on windows and "tsc" on other systems.
+* *compilerExecutable* - (String) The tsc compiler executable to use. Defaults to "cmd /c tsc.cmd" on windows and "tsc" on other systems.
 
 # Integrating the compiled files into a WAR file (for Java Webapps)
 

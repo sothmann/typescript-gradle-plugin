@@ -39,7 +39,7 @@ public class CompileTypeScript extends SourceTask {
 	@Input @Optional File sourceRoot
 	@Input @Optional Integer codepage
 	@Input @Optional File mapRoot
-	@Input String compilerExecutable = Os.isFamily(Os.FAMILY_WINDOWS) ? "tsc.cmd" : "tsc"
+	@Input String compilerExecutable = Os.isFamily(Os.FAMILY_WINDOWS) ? "cmd /c tsc.cmd" : "tsc"
 	File tsCompilerArgs = File.createTempFile("tsCompiler-", ".args")
 
 	@TaskAction
@@ -89,13 +89,23 @@ public class CompileTypeScript extends SourceTask {
 		}
 		tsCompilerArgs.append(" " + files.join(" "))
 
-		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgs.text);
+		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgs.text)
 		
 		project.exec {
-			executable = compilerExecutable
-			args '@' + tsCompilerArgs
+			executable = getCompilerExecutableAndArgs().get(0)
+			args(getExecutableArgs())
 		}
 		
 		logger.info "Done TypeScript compilation."
+	}
+	
+	private String getExecutableArgs() {
+		List<String> compilerExecutableAndArgs = getCompilerExecutableAndArgs()
+		List<String> compilerArgs = compilerExecutableAndArgs.size() > 1 ? (compilerExecutableAndArgs.subList(1, compilerExecutableAndArgs.size())) : []
+		return (compilerArgs ? compilerArgs.join(' ') + ' ' : '') + '@' + tsCompilerArgs
+	}
+	
+	private List<String> getCompilerExecutableAndArgs() {
+		return Arrays.asList(compilerExecutable.split(" "))
 	}
 }
