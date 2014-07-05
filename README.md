@@ -27,7 +27,7 @@ As this is not a core Gradle plugin, you have to ensure, that Gradle knows how t
             mavenCentral()
         }
         dependencies {
-            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.3'
+            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.4'
         }
     }
 
@@ -70,7 +70,7 @@ Here is a list of the available configuration options of the _compileTypeScript_
 # Integrating the compiled files into a WAR file (for Java Webapps)
 
 If you are integrating TypeScript into a Java web application, you can easily integrate the compiled files into the WAR file.
-All you have to do is to configure the war task to pick uo the compiled files.
+All you have to do is to configure the war task to pick up the compiled files.
 Whenever you call the war task, the TypeScript compiler will compile your TypeScript files first.
 In the example below, the compiled files will be put into the js directory in the WAR file.
 
