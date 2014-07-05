@@ -48,7 +48,7 @@ public class CompileTypeScript extends SourceTask {
 		
 		logger.info "compiling TypeScript files..."
 
-		List<String> files = source.collect{ File f -> f.toString(); };
+		List<String> files = source.collect{ File f -> return "\"${f.toString();}\"" };
 		logger.debug("TypeScript files to compile: " + files.join(" "));
 
 		if(outputDir) {
