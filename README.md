@@ -31,7 +31,7 @@ As this is not a core Gradle plugin, you have to ensure, that Gradle knows how t
             mavenCentral()
         }
         dependencies {
-            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.4'
+            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.5'
         }
     }
 
