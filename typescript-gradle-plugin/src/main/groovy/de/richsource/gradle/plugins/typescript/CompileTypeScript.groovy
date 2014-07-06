@@ -91,9 +91,11 @@ public class CompileTypeScript extends SourceTask {
 
 		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgs.text)
 		
+		String exe = getCompilerExecutableAndArgs().get(0)
+		String exeArgs = getExecutableArgs()
 		project.exec {
-			executable = getCompilerExecutableAndArgs().get(0)
-			args(getExecutableArgs())
+			executable = exe
+			args(exeArgs)
 		}
 		
 		logger.info "Done TypeScript compilation."
