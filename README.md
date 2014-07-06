@@ -58,7 +58,7 @@ Here is a list of the available configuration options of the _compileTypeScript_
 
 * *source* - (File) directories to compile, defaults to src/main/ts
 * *outputDir* - (File) the output directory, defaults to _buildDir_/ts
-* *out* - (File) Concatenate and emit output to single file
+* *out* - (File) Concatenate and emit output to single file, e.g. `file("${buildDir}/js/out.js")`
 * *module* - (de.richsource.gradle.plugins.typescript.Module) Specify module code generation (AMD or COMMONJS)
 * *target* - (de.richsource.gradle.plugins.typescript.Target) Specify ECMAScript target version (ES3 or ES5)
 * *declaration* - (boolean) Generates corresponding .d.ts file
