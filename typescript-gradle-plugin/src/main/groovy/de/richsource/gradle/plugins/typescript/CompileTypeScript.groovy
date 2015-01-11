@@ -52,10 +52,10 @@ public class CompileTypeScript extends SourceTask {
 		logger.debug("TypeScript files to compile: " + files.join(" "));
 
 		if(outputDir) {
-			tsCompilerArgs.append(" --outDir " + outputDir.toString())
+			tsCompilerArgs.append(" --outDir " + "\"" + outputDir.toString() + "\"")
 		}
 		if(out) {
-			tsCompilerArgs.append(" --out " + out)
+			tsCompilerArgs.append(" --out " + "\"" + out+ "\"")
 		}
 		if(module) {
 			tsCompilerArgs.append(" --module " + module.name().toLowerCase())
@@ -85,10 +85,10 @@ public class CompileTypeScript extends SourceTask {
 			tsCompilerArgs.append(" --sourcemap")
 		}
 		if(sourceRoot) {
-			tsCompilerArgs.append(" --sourceRoot " + sourceRoot)
+			tsCompilerArgs.append(" --sourceRoot " + "\"" + sourceRoot + "\"")
 		}
 		tsCompilerArgs.append(" " + files.join(" "))
-
+		
 		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgs.text)
 		
 		String exe = getCompilerExecutableAndArgs().get(0)
