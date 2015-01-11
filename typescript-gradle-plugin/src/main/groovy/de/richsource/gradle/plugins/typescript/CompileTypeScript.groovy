@@ -52,16 +52,16 @@ public class CompileTypeScript extends SourceTask {
 		logger.debug("TypeScript files to compile: " + files.join(" "));
 
 		if(outputDir) {
-			tsCompilerArgs.append(" --outDir " + "\"" + outputDir.toString() + "\"")
+			tsCompilerArgs.append(" --outDir \"${outputDir.toString()}\"")
 		}
 		if(out) {
-			tsCompilerArgs.append(" --out " + "\"" + out+ "\"")
+			tsCompilerArgs.append(" --out \"${out}\"")
 		}
 		if(module) {
-			tsCompilerArgs.append(" --module " + module.name().toLowerCase())
+			tsCompilerArgs.append(" --module ${module.name().toLowerCase()}")
 		}
 		if(target) {
-			tsCompilerArgs.append(" --target " + target.name())
+			tsCompilerArgs.append(" --target ${target.name()}")
 		}
 		if(declaration) {
 			tsCompilerArgs.append(" --declaration")
@@ -73,10 +73,10 @@ public class CompileTypeScript extends SourceTask {
 			tsCompilerArgs.append(" --noResolve")
 		}
 		if(codepage) {
-			tsCompilerArgs.append(" --codepage " + codepage)
+			tsCompilerArgs.append(" --codepage ${codepage}")
 		}
 		if(mapRoot) {
-			tsCompilerArgs.append(" --mapRoot " + mapRoot)
+			tsCompilerArgs.append(" --mapRoot \"${mapRoot}\"")
 		}
 		if(removeComments) {
 			tsCompilerArgs.append(" --removeComments")
@@ -85,7 +85,7 @@ public class CompileTypeScript extends SourceTask {
 			tsCompilerArgs.append(" --sourcemap")
 		}
 		if(sourceRoot) {
-			tsCompilerArgs.append(" --sourceRoot " + "\"" + sourceRoot + "\"")
+			tsCompilerArgs.append(" --sourceRoot \"${sourceRoot}\"")
 		}
 		tsCompilerArgs.append(" " + files.join(" "))
 		
