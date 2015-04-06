@@ -31,7 +31,7 @@ As this is not a core Gradle plugin, you have to ensure, that Gradle knows how t
             mavenCentral()
         }
         dependencies {
-            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.0.6'
+            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.1'
         }
     }
 
@@ -60,7 +60,7 @@ Here is a list of the available configuration options of the _compileTypeScript_
 * *outputDir* - (File) the output directory, defaults to _buildDir_/ts
 * *out* - (File) Concatenate and emit output to single file, e.g. `file("${buildDir}/js/out.js")`
 * *module* - (de.richsource.gradle.plugins.typescript.Module) Specify module code generation (AMD or COMMONJS)
-* *target* - (de.richsource.gradle.plugins.typescript.Target) Specify ECMAScript target version (ES3 or ES5)
+* *target* - (de.richsource.gradle.plugins.typescript.Target) Specify ECMAScript target version (ES3, ES5 or ES6)
 * *declaration* - (boolean) Generates corresponding .d.ts file
 * *noImplicitAny* - (boolean) Warn on expressions and declarations with an implied 'any' type
 * *noResolve* - (boolean) Skip resolution and preprocessing
@@ -70,6 +70,7 @@ Here is a list of the available configuration options of the _compileTypeScript_
 * *codepage* - (Integer) Specify the codepage to use when opening source files
 * *mapRoot* - (File) Specifies the location where debugger should locate map files instead of generated locations
 * *compilerExecutable* - (String) The tsc compiler executable to use. Defaults to "cmd /c tsc.cmd" on windows and "tsc" on other systems.
+* *noEmitOnError* - (boolean) Do not emit outputs if any type checking errors were reported
 
 # Integrating the compiled files into a WAR file (for Java Webapps)
 
