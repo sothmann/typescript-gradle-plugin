@@ -39,6 +39,7 @@ public class CompileTypeScript extends SourceTask {
 	@Input @Optional File sourceRoot
 	@Input @Optional Integer codepage
 	@Input @Optional File mapRoot
+	@Input @Optional boolean noEmitOnError
 	@Input String compilerExecutable = Os.isFamily(Os.FAMILY_WINDOWS) ? "cmd /c tsc.cmd" : "tsc"
 	File tsCompilerArgs = File.createTempFile("tsCompiler-", ".args")
 
@@ -86,6 +87,9 @@ public class CompileTypeScript extends SourceTask {
 		}
 		if(sourceRoot) {
 			tsCompilerArgs.append(" --sourceRoot \"${sourceRoot}\"")
+		}
+		if(noEmitOnError) {
+			tsCompilerArgs.append(" --noEmitOnError")
 		}
 		tsCompilerArgs.append(" " + files.join(" "))
 		
