@@ -26,7 +26,7 @@ As this is not a core Gradle plugin, you have to ensure, that Gradle knows how t
     buildscript {
         repositories {
             maven {
-                url 'https://github.com/sothmann/typescript-gradle-plugin/raw/mavenrepo/'
+                url 'https://dl.bintray.com/sothmann/gradle-plugins'
             }
             mavenCentral()
         }
