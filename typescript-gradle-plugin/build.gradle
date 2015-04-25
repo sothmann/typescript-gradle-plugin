@@ -6,6 +6,9 @@ dependencies {
 	compile gradleApi()
 }
 
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
 ext {
 	encoding = "UTF-8"
 }

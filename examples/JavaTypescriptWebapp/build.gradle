@@ -37,6 +37,9 @@ dependencies {
     providedCompile "javax.servlet:servlet-api:2.5"
 }
 
+sourceCompatibility = 1.6
+targetCompatibility = 1.6
+
 war {
 	into("js") {
 		from compileTypeScript.outputs
