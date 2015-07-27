@@ -45,7 +45,6 @@ javadoc {
 }
 
 group='de.richsource.gradle.plugins'
-version='1.2-SNAPSHOT'
 publishing {
 	publications {
 		mavenJava(MavenPublication) {
@@ -65,7 +64,7 @@ publishing {
 	}
 	repositories {
 		maven {
-			url new File(rootProject.projectDir, '../repo').toURI()
+			url new File(rootProject.projectDir, 'repo').toURI()
 		}
 	}
 }

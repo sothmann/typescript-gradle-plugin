@@ -23,6 +23,7 @@ import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.InvalidUserDataException
 import org.apache.tools.ant.taskdefs.condition.Os
 
 public class CompileTypeScript extends SourceTask {
@@ -40,6 +41,16 @@ public class CompileTypeScript extends SourceTask {
 	@Input @Optional Integer codepage
 	@Input @Optional File mapRoot
 	@Input @Optional boolean noEmitOnError
+	@Input @Optional boolean noEmit
+	@Input @Optional boolean experimentalDecorators
+	@Input @Optional Newline newline
+	@Input @Optional boolean preserveConstEnums
+	@Input @Optional File projectFileDir
+	@Input @Optional File rootDir
+	@Input @Optional boolean suppressImplicitAnyIndexErrors
+	@Input @Optional boolean noEmitHelpers
+	@Input @Optional boolean inlineSourceMap
+	@Input @Optional boolean inlineSources
 	@Input String compilerExecutable = Os.isFamily(Os.FAMILY_WINDOWS) ? "cmd /c tsc.cmd" : "tsc"
 	File tsCompilerArgs = File.createTempFile("tsCompiler-", ".args")
 
@@ -48,6 +59,8 @@ public class CompileTypeScript extends SourceTask {
 		tsCompilerArgs.deleteOnExit()
 		
 		logger.info "compiling TypeScript files..."
+		
+		validate()
 
 		List<String> files = source.collect{ File f -> return "\"${f.toString();}\"" };
 		logger.debug("TypeScript files to compile: " + files.join(" "));
@@ -83,7 +96,7 @@ public class CompileTypeScript extends SourceTask {
 			tsCompilerArgs.append(" --removeComments")
 		}
 		if(sourcemap) {
-			tsCompilerArgs.append(" --sourcemap")
+			tsCompilerArgs.append(" --sourceMap")
 		}
 		if(sourceRoot) {
 			tsCompilerArgs.append(" --sourceRoot \"${sourceRoot}\"")
@@ -91,7 +104,43 @@ public class CompileTypeScript extends SourceTask {
 		if(noEmitOnError) {
 			tsCompilerArgs.append(" --noEmitOnError")
 		}
-		tsCompilerArgs.append(" " + files.join(" "))
+		if(noEmit) {
+			tsCompilerArgs.append(" --noEmit")
+		}
+		if(experimentalDecorators) {
+			tsCompilerArgs.append(" --experimentalDecorators")
+		}
+		if(newline) {
+			tsCompilerArgs.append(" --newLine ${newline.name()}")
+		}
+		if(preserveConstEnums) {
+			tsCompilerArgs.append(" --preserveConstEnums")
+		}
+		if(projectFileDir) {
+			tsCompilerArgs.append(" --project \"${projectFileDir}\"")
+		}
+		if(rootDir) {
+			tsCompilerArgs.append(" --rootDir \"${rootDir}\"")
+		}
+		if(suppressImplicitAnyIndexErrors) {
+			tsCompilerArgs.append(" --suppressImplicitAnyIndexErrors")
+		}
+		if(noEmitHelpers) {
+			tsCompilerArgs.append(" --noEmitHelpers")
+		}
+		if(inlineSourceMap) {
+			tsCompilerArgs.append(" --inlineSourceMap")
+		}
+		if(inlineSources) {
+			tsCompilerArgs.append(" --inlineSources")
+		}
+		if(files) {
+			if(projectFileDir) {
+				logger.info("Source provided in combination with projectFileDir. Source option will be ignored.")
+			} else {
+				tsCompilerArgs.append(" " + files.join(" "))
+			}
+		}
 		
 		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgs.text)
 		
@@ -113,5 +162,11 @@ public class CompileTypeScript extends SourceTask {
 	
 	private List<String> getCompilerExecutableAndArgs() {
 		return Arrays.asList(compilerExecutable.split(" "))
+	}
+	
+	private void validate() {
+		if(sourcemap && inlineSourceMap) {
+			throw new InvalidUserDataException("Option 'sourcemap' cannot be specified with option 'inlineSourceMap'")
+		}
 	}
 }

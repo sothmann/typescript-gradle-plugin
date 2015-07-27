@@ -25,7 +25,10 @@ As this is not a core Gradle plugin, you have to ensure, that Gradle knows how t
 
     buildscript {
         repositories {
-           jcenter()
+            maven {
+                url 'https://dl.bintray.com/sothmann/gradle-plugins'
+            }
+            mavenCentral()
         }
         dependencies {
             classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.1'
@@ -53,21 +56,31 @@ You can configure the TypeScript compile task as shown below:
 
 Here is a list of the available configuration options of the _compileTypeScript_ task:
 
-* *source* - (File) directories to compile, defaults to src/main/ts
-* *outputDir* - (File) the output directory, defaults to _buildDir_/ts
-* *out* - (File) Concatenate and emit output to single file, e.g. `file("${buildDir}/js/out.js")`
-* *module* - (de.richsource.gradle.plugins.typescript.Module) Specify module code generation (AMD or COMMONJS)
-* *target* - (de.richsource.gradle.plugins.typescript.Target) Specify ECMAScript target version (ES3, ES5 or ES6)
-* *declaration* - (boolean) Generates corresponding .d.ts file
-* *noImplicitAny* - (boolean) Warn on expressions and declarations with an implied 'any' type
-* *noResolve* - (boolean) Skip resolution and preprocessing
-* *removeComments* - (boolean) Do not emit comments to output
-* *sourcemap* - (boolean) Generates corresponding .map file
-* *sourceRoot* - (File) Specifies the location where debugger should locate TypeScript files instead of source locations
-* *codepage* - (Integer) Specify the codepage to use when opening source files
-* *mapRoot* - (File) Specifies the location where debugger should locate map files instead of generated locations
-* *compilerExecutable* - (String) The tsc compiler executable to use. Defaults to "cmd /c tsc.cmd" on windows and "tsc" on other systems.
-* *noEmitOnError* - (boolean) Do not emit outputs if any type checking errors were reported
+* `source` - (File) directories to compile, defaults to `src/main/ts`
+* `outputDir` - (File) the output directory, defaults to _buildDir_/ts
+* `out` - (File) Concatenate and emit output to single file, e.g. `file("${buildDir}/js/out.js")`
+* `module` - (de.richsource.gradle.plugins.typescript.Module) Specify module code generation (`AMD`, `COMMONJS`, `SYSTEM`, `UMD`)
+* `target` - (de.richsource.gradle.plugins.typescript.Target) Specify ECMAScript target version (`ES3`, `ES5` or `ES6`)
+* `declaration` - (boolean) Generates corresponding .d.ts file
+* `noImplicitAny` - (boolean) Warn on expressions and declarations with an implied 'any' type
+* `noResolve` - (boolean) Skip resolution and preprocessing
+* `removeComments` - (boolean) Do not emit comments to output
+* `sourcemap` - (boolean) Generates corresponding .map file
+* `sourceRoot` - (File) Specifies the location where debugger should locate TypeScript files instead of source locations
+* `codepage` - (Integer) Specify the codepage to use when opening source files
+* `mapRoot` - (File) Specifies the location where debugger should locate map files instead of generated locations
+* `compilerExecutable` - (String) The tsc compiler executable to use. Defaults to `cmd /c tsc.cmd` on windows and `tsc` on other systems.
+* `noEmitOnError` - (boolean) Do not emit outputs if any type checking errors were reported
+* `noEmit` - (boolean) Do not emit outputs
+* `experimentalDecorators` - (boolean) Enables experimental support for ES7 decorators
+* `newline` - (de.richsource.gradle.plugins.typescript.Newline) Specifies the end of line sequence to be used when emitting files (`CRLF` or `LF`)
+* `preserveConstEnums` - (boolean) Do not erase const enum declarations in generated code
+* `projectFileDir` - (File) Compile the project in the given directory where a tsconfig.json file is present. File specified with the `source` option will be ignore, but you should still explicitely configure the source files as this will make the Gradle UP-TO-DATE check work.
+* `rootDir` - (File) Specifies the root directory of input files. Use to control the output directory structure with `outDir`.
+* `suppressImplicitAnyIndexErrors` - (boolean) Suppress noImplicitAny errors for indexing objects lacking index signatures
+* `noEmitHelpers` - (boolean) Do not emit helpers like `__extends`
+* `inlineSourceMap` - (boolean) Causes source map files to be written inline in the generated .js files instead of in a independent .js.map file
+* `inlineSources` - (boolean) Allows for additionally inlining the source .ts file into the .js file when used in combination with `inlineSourceMap`
 
 # Integrating the compiled files into a WAR file (for Java Webapps)
 

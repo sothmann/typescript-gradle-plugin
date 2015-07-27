@@ -1,0 +1,13 @@
+{
+    "compilerOptions": {
+        "module": "amd",
+        "noImplicitAny": true,
+        "removeComments": true,
+        "preserveConstEnums": true,
+		"inlineSourceMap": true,
+		"inlineSources": true
+    },
+    "files": [
+        "src/main/ts/helloworld.ts"
+    ]
+}
