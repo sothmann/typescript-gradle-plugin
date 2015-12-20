@@ -51,6 +51,16 @@ public class CompileTypeScript extends SourceTask {
 	@Input @Optional boolean noEmitHelpers
 	@Input @Optional boolean inlineSourceMap
 	@Input @Optional boolean inlineSources
+	@Input @Optional boolean watch
+	@Input @Optional String charset
+	@Input @Optional boolean emitBOM
+	@Input @Optional boolean emitDecoratorMetadata
+	@Input @Optional boolean isolatedModules
+	@Input @Optional Jsx jsx
+	@Input @Optional locale
+	@Input @Optional ModuleResoltion moduleResolution
+	@Input @Optional boolean noLib
+	@Input @Optional boolean stripInternal
 	@Input String compilerExecutable = Os.isFamily(Os.FAMILY_WINDOWS) ? "cmd /c tsc.cmd" : "tsc"
 	File tsCompilerArgs = File.createTempFile("tsCompiler-", ".args")
 
@@ -133,6 +143,36 @@ public class CompileTypeScript extends SourceTask {
 		}
 		if(inlineSources) {
 			tsCompilerArgs.append(" --inlineSources")
+		}
+		if(watch) {
+			tsCompilerArgs.append(" --watch")
+		}
+		if(charset) {
+			tsCompilerArgs.append(" --charset ${charset}")
+		}
+		if(emitBOM) {
+			tsCompilerArgs.append(" --emitBOM")
+		}
+		if(emitDecoratorMetadata) {
+			tsCompilerArgs.append(" --emitDecoratorMetadata")
+		}
+		if(isolatedModules) {
+			tsCompilerArgs.append(" --isolatedModules")
+		}
+		if(jsx) {
+			tsCompilerArgs.append(" --jsx ${jsx.name().toLowerCase()}")
+		}
+		if(locale) {
+			tsCompilerArgs.append(" --locale ${locale}")
+		}
+		if(moduleResolution) {
+			tsCompilerArgs.append(" --moduleResolution ${moduleResolution.name().toLowerCase()}")
+		}
+		if(noLib) {
+			tsCompilerArgs.append(" --noLib")
+		}
+		if(stripInternal) {
+			tsCompilerArgs.append(" --stripInternal")
 		}
 		if(files) {
 			if(projectFileDir) {
