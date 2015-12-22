@@ -62,130 +62,18 @@ public class CompileTypeScript extends SourceTask {
 	@Input @Optional boolean noLib
 	@Input @Optional boolean stripInternal
 	@Input String compilerExecutable = Os.isFamily(Os.FAMILY_WINDOWS) ? "cmd /c tsc.cmd" : "tsc"
-	File tsCompilerArgs = File.createTempFile("tsCompiler-", ".args")
 
 	@TaskAction
 	void compile() {
-		tsCompilerArgs.deleteOnExit()
-		
 		logger.info "compiling TypeScript files..."
-		
+
 		validate()
 
-		List<String> files = source.collect{ File f -> return "\"${f.toString();}\"" };
-		logger.debug("TypeScript files to compile: " + files.join(" "));
-
-		if(outputDir) {
-			tsCompilerArgs.append(" --outDir \"${outputDir.toString()}\"")
-		}
-		if(out) {
-			tsCompilerArgs.append(" --out \"${out}\"")
-		}
-		if(module) {
-			tsCompilerArgs.append(" --module ${module.name().toLowerCase()}")
-		}
-		if(target) {
-			tsCompilerArgs.append(" --target ${target.name()}")
-		}
-		if(declaration) {
-			tsCompilerArgs.append(" --declaration")
-		}
-		if(noImplicitAny) {
-			tsCompilerArgs.append(" --noImplicitAny")
-		}
-		if(noResolve) {
-			tsCompilerArgs.append(" --noResolve")
-		}
-		if(codepage) {
-			tsCompilerArgs.append(" --codepage ${codepage}")
-		}
-		if(mapRoot) {
-			tsCompilerArgs.append(" --mapRoot \"${mapRoot}\"")
-		}
-		if(removeComments) {
-			tsCompilerArgs.append(" --removeComments")
-		}
-		if(sourcemap) {
-			tsCompilerArgs.append(" --sourceMap")
-		}
-		if(sourceRoot) {
-			tsCompilerArgs.append(" --sourceRoot \"${sourceRoot}\"")
-		}
-		if(noEmitOnError) {
-			tsCompilerArgs.append(" --noEmitOnError")
-		}
-		if(noEmit) {
-			tsCompilerArgs.append(" --noEmit")
-		}
-		if(experimentalDecorators) {
-			tsCompilerArgs.append(" --experimentalDecorators")
-		}
-		if(newline) {
-			tsCompilerArgs.append(" --newLine ${newline.name()}")
-		}
-		if(preserveConstEnums) {
-			tsCompilerArgs.append(" --preserveConstEnums")
-		}
-		if(projectFileDir) {
-			tsCompilerArgs.append(" --project \"${projectFileDir}\"")
-		}
-		if(rootDir) {
-			tsCompilerArgs.append(" --rootDir \"${rootDir}\"")
-		}
-		if(suppressImplicitAnyIndexErrors) {
-			tsCompilerArgs.append(" --suppressImplicitAnyIndexErrors")
-		}
-		if(noEmitHelpers) {
-			tsCompilerArgs.append(" --noEmitHelpers")
-		}
-		if(inlineSourceMap) {
-			tsCompilerArgs.append(" --inlineSourceMap")
-		}
-		if(inlineSources) {
-			tsCompilerArgs.append(" --inlineSources")
-		}
-		if(watch) {
-			tsCompilerArgs.append(" --watch")
-		}
-		if(charset) {
-			tsCompilerArgs.append(" --charset ${charset}")
-		}
-		if(emitBOM) {
-			tsCompilerArgs.append(" --emitBOM")
-		}
-		if(emitDecoratorMetadata) {
-			tsCompilerArgs.append(" --emitDecoratorMetadata")
-		}
-		if(isolatedModules) {
-			tsCompilerArgs.append(" --isolatedModules")
-		}
-		if(jsx) {
-			tsCompilerArgs.append(" --jsx ${jsx.name().toLowerCase()}")
-		}
-		if(locale) {
-			tsCompilerArgs.append(" --locale ${locale}")
-		}
-		if(moduleResolution) {
-			tsCompilerArgs.append(" --moduleResolution ${moduleResolution.name().toLowerCase()}")
-		}
-		if(noLib) {
-			tsCompilerArgs.append(" --noLib")
-		}
-		if(stripInternal) {
-			tsCompilerArgs.append(" --stripInternal")
-		}
-		if(files) {
-			if(projectFileDir) {
-				logger.info("Source provided in combination with projectFileDir. Source option will be ignored.")
-			} else {
-				tsCompilerArgs.append(" " + files.join(" "))
-			}
-		}
-		
-		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgs.text)
+		File tsCompilerArgsFile = createTsCompilerArgsFile()
+		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgsFile.text)
 		
 		String exe = getCompilerExecutableAndArgs().get(0)
-		String exeArgs = getExecutableArgs()
+		String exeArgs = getExecutableArgs(tsCompilerArgsFile)
 		project.exec {
 			executable = exe
 			args(exeArgs)
@@ -193,11 +81,101 @@ public class CompileTypeScript extends SourceTask {
 		
 		logger.info "Done TypeScript compilation."
 	}
-	
-	private String getExecutableArgs() {
+
+	private File createTsCompilerArgsFile() {
+		File tsCompilerArgsFile = File.createTempFile("tsCompiler-", ".args")
+		tsCompilerArgsFile.deleteOnExit()
+
+		addFlagsIfPresent(tsCompilerArgsFile,
+				[
+					(declaration): 'declaration',
+					(noImplicitAny): 'noImplicitAny',
+					(noResolve): 'noResolve',
+					(removeComments): 'removeComments',
+					(sourcemap): 'sourceMap',
+					(noEmitOnError): 'noEmitOnError',
+					(noEmit): 'noEmit',
+					(experimentalDecorators): 'experimentalDecorators',
+					(preserveConstEnums): 'preserveConstEnums',
+					(suppressImplicitAnyIndexErrors): 'suppressImplicitAnyIndexErrors',
+					(noEmitHelpers): 'noEmitHelpers',
+					(inlineSourceMap): 'inlineSourceMap',
+					(inlineSources): 'inlineSources',
+					(watch): 'watch',
+					(emitBOM): 'emitBOM',
+					(emitDecoratorMetadata): 'emitDecoratorMetadata',
+					(isolatedModules): 'isolatedModules',
+					(noLib): 'noLib',
+					(stripInternal): 'stripInternal'
+				])
+
+		if (outputDir) {
+			tsCompilerArgsFile.append(" --outDir \"${outputDir.toString()}\"")
+		}
+		if (out) {
+			tsCompilerArgsFile.append(" --out \"${out}\"")
+		}
+		if (module) {
+			tsCompilerArgsFile.append(" --module ${module.name().toLowerCase()}")
+		}
+		if (target) {
+			tsCompilerArgsFile.append(" --target ${target.name()}")
+		}
+		if (codepage) {
+			tsCompilerArgsFile.append(" --codepage ${codepage}")
+		}
+		if (mapRoot) {
+			tsCompilerArgsFile.append(" --mapRoot \"${mapRoot}\"")
+		}
+		if (sourceRoot) {
+			tsCompilerArgsFile.append(" --sourceRoot \"${sourceRoot}\"")
+		}
+		if (newline) {
+			tsCompilerArgsFile.append(" --newLine ${newline.name()}")
+		}
+		if (projectFileDir) {
+			tsCompilerArgsFile.append(" --project \"${projectFileDir}\"")
+		}
+		if (rootDir) {
+			tsCompilerArgsFile.append(" --rootDir \"${rootDir}\"")
+		}
+		if (charset) {
+			tsCompilerArgsFile.append(" --charset ${charset}")
+		}
+		if (jsx) {
+			tsCompilerArgsFile.append(" --jsx ${jsx.name().toLowerCase()}")
+		}
+		if (locale) {
+			tsCompilerArgsFile.append(" --locale ${locale}")
+		}
+		if (moduleResolution) {
+			tsCompilerArgsFile.append(" --moduleResolution ${moduleResolution.name().toLowerCase()}")
+		}
+
+		List<String> files = source.collect { File f -> return "\"${f.toString();}\"" };
+		logger.debug("TypeScript files to compile: " + files.join(" "));
+		if (files) {
+			if (projectFileDir) {
+				logger.info("Source provided in combination with projectFileDir. Source option will be ignored.")
+			} else {
+				tsCompilerArgsFile.append(" " + files.join(" "))
+			}
+		}
+		return tsCompilerArgsFile
+	}
+
+	void addFlagsIfPresent(File tsCompilerArgsFile, Map<Object,String> potentialFlags) {
+		potentialFlags.each { Object key, String flagName ->
+			if(key) {
+				tsCompilerArgsFile.append(" --${flagName}")
+			}
+		}
+	}
+
+	private String getExecutableArgs(File tsCompilerArgsFile) {
 		List<String> compilerExecutableAndArgs = getCompilerExecutableAndArgs()
 		List<String> compilerArgs = compilerExecutableAndArgs.size() > 1 ? (compilerExecutableAndArgs.subList(1, compilerExecutableAndArgs.size())) : []
-		return (compilerArgs ? compilerArgs.join(' ') + ' ' : '') + '@' + tsCompilerArgs
+		return (compilerArgs ? compilerArgs.join(' ') + ' ' : '') + '@' + tsCompilerArgsFile
 	}
 	
 	private List<String> getCompilerExecutableAndArgs() {
