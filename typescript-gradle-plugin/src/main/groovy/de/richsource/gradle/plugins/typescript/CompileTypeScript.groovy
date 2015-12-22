@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package de.richsource.gradle.plugins.typescript;
+package de.richsource.gradle.plugins.typescript
 
+import org.gradle.api.file.FileTree;
 import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.OutputDirectory
-import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.InvalidUserDataException
 import org.apache.tools.ant.taskdefs.condition.Os
@@ -74,10 +73,10 @@ public class CompileTypeScript extends SourceTask {
 
 		List<String> compilerExecutableAndArgs = compilerExecutable.split(" ").findAll { it.length() > 0 }
 		String exe = compilerExecutableAndArgs[0]
-		List<String> compilerArgs = compilerExecutableAndArgs.tail() + ('@' + tsCompilerArgs)
+		List<String> arguments = compilerExecutableAndArgs.tail() + ('@' + tsCompilerArgsFile)
 		project.exec {
 			executable = exe
-			args = compilerArgs
+			args = arguments
 		}
 
 		logger.info "Done TypeScript compilation."
@@ -87,72 +86,51 @@ public class CompileTypeScript extends SourceTask {
 		File tsCompilerArgsFile = File.createTempFile("tsCompiler-", ".args")
 		tsCompilerArgsFile.deleteOnExit()
 
-		addFlagsIfPresent(tsCompilerArgsFile,
-				[
-					(declaration): 'declaration',
-					(noImplicitAny): 'noImplicitAny',
-					(noResolve): 'noResolve',
-					(removeComments): 'removeComments',
-					(sourcemap): 'sourceMap',
-					(noEmitOnError): 'noEmitOnError',
-					(noEmit): 'noEmit',
-					(experimentalDecorators): 'experimentalDecorators',
-					(preserveConstEnums): 'preserveConstEnums',
-					(suppressImplicitAnyIndexErrors): 'suppressImplicitAnyIndexErrors',
-					(noEmitHelpers): 'noEmitHelpers',
-					(inlineSourceMap): 'inlineSourceMap',
-					(inlineSources): 'inlineSources',
-					(watch): 'watch',
-					(emitBOM): 'emitBOM',
-					(emitDecoratorMetadata): 'emitDecoratorMetadata',
-					(isolatedModules): 'isolatedModules',
-					(noLib): 'noLib',
-					(stripInternal): 'stripInternal'
-				])
+		addFlagsIfPresent(tsCompilerArgsFile, [
+			'declaration': declaration,
+			'noImplicitAny': noImplicitAny,
+			'noResolve': noResolve,
+			'removeComments': removeComments,
+			'sourceMap': sourcemap,
+			'noEmitOnError': noEmitOnError,
+			'noEmit': noEmit,
+			'experimentalDecorators': experimentalDecorators,
+			'preserveConstEnums': preserveConstEnums,
+			'suppressImplicitAnyIndexErrors': suppressImplicitAnyIndexErrors,
+			'noEmitHelpers': noEmitHelpers,
+			'inlineSourceMap': inlineSourceMap,
+			'inlineSources': inlineSources,
+			'watch': watch,
+			'emitBOM': emitBOM,
+			'emitDecoratorMetadata': emitDecoratorMetadata,
+			'isolatedModules': isolatedModules,
+			'noLib': noLib,
+			'stripInternal': stripInternal
+		])
 
-		if (outputDir) {
-			tsCompilerArgsFile.append(" --outDir \"${outputDir.toString()}\"")
-		}
-		if (out) {
-			tsCompilerArgsFile.append(" --out \"${out}\"")
-		}
-		if (module) {
-			tsCompilerArgsFile.append(" --module ${module.name().toLowerCase()}")
-		}
-		if (target) {
-			tsCompilerArgsFile.append(" --target ${target.name()}")
-		}
-		if (codepage) {
-			tsCompilerArgsFile.append(" --codepage ${codepage}")
-		}
-		if (mapRoot) {
-			tsCompilerArgsFile.append(" --mapRoot \"${mapRoot}\"")
-		}
-		if (sourceRoot) {
-			tsCompilerArgsFile.append(" --sourceRoot \"${sourceRoot}\"")
-		}
-		if (newline) {
-			tsCompilerArgsFile.append(" --newLine ${newline.name()}")
-		}
-		if (projectFileDir) {
-			tsCompilerArgsFile.append(" --project \"${projectFileDir}\"")
-		}
-		if (rootDir) {
-			tsCompilerArgsFile.append(" --rootDir \"${rootDir}\"")
-		}
-		if (charset) {
-			tsCompilerArgsFile.append(" --charset ${charset}")
-		}
-		if (jsx) {
-			tsCompilerArgsFile.append(" --jsx ${jsx.name().toLowerCase()}")
-		}
-		if (locale) {
-			tsCompilerArgsFile.append(" --locale ${locale}")
-		}
-		if (moduleResolution) {
-			tsCompilerArgsFile.append(" --moduleResolution ${moduleResolution.name().toLowerCase()}")
-		}
+		addOptionsIfPresent(tsCompilerArgsFile, [
+			'outDir': outputDir,
+			'out': out,
+			'project': projectFileDir,
+			'rootDir': rootDir,
+			'mapRoot': mapRoot,
+			'sourceRoot': sourceRoot,
+			'locale': locale,
+			'charset': charset,
+			'codepage': codepage,
+			'module': module ? module.name().toLowerCase() : null,
+			'target': target ? target.name() : null,
+			'newLine': newline ? newline.name() : null,
+			'jsx': jsx ? jsx.name().toLowerCase() : null,
+			'moduleResolution': moduleResolution ? moduleResolution.name().toLowerCase() : null
+		])
 
+		addSourceFilesIfPresent(tsCompilerArgsFile, source, projectFileDir)
+
+		return tsCompilerArgsFile
+	}
+
+	private void addSourceFilesIfPresent(File tsCompilerArgsFile, FileTree source, File projectFileDir) {
 		List<String> files = source.collect { File f -> return "\"${f.toString();}\"" };
 		logger.debug("TypeScript files to compile: " + files.join(" "));
 		if (files) {
@@ -162,14 +140,29 @@ public class CompileTypeScript extends SourceTask {
 				tsCompilerArgsFile.append(" " + files.join(" "))
 			}
 		}
-		return tsCompilerArgsFile
 	}
 
-	void addFlagsIfPresent(File tsCompilerArgsFile, Map<Object,String> potentialFlags) {
-		potentialFlags.each { Object key, String flagName ->
-			if(key) {
+	private void addFlagsIfPresent(File tsCompilerArgsFile, Map<String, Object> potentialFlags) {
+		potentialFlags.each { String flagName, Object flagValue ->
+			if(flagValue) {
 				tsCompilerArgsFile.append(" --${flagName}")
 			}
+		}
+	}
+
+	private void addOptionsIfPresent(File tsCompilerArgsFile, Map<String, Object> potentialOptions) {
+		potentialOptions.each { String optionName, Object optionValue ->
+			if(optionValue) {
+				addOption(tsCompilerArgsFile, optionName, optionValue)
+			}
+		}
+	}
+
+	private void addOption(File tsCompilerArgsFile, String optionName, Object option) {
+		if(option instanceof File) {
+			tsCompilerArgsFile.append(" --${optionName} \"${option}\"")
+		} else {
+			tsCompilerArgsFile.append(" --${optionName} ${option}")
 		}
 	}
 
