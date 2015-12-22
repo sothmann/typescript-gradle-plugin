@@ -144,24 +144,15 @@ public class CompileTypeScript extends SourceTask {
 		
 		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgs.text)
 		
-		String exe = getCompilerExecutableAndArgs().get(0)
-		String exeArgs = getExecutableArgs()
+		List<String> compilerExecutableAndArgs = compilerExecutable.split(" ").findAll { it.length() > 0 }
+		String exe = compilerExecutableAndArgs[0]
+		List<String> compilerArgs = compilerExecutableAndArgs.tail() + ('@' + tsCompilerArgs)
 		project.exec {
 			executable = exe
-			args(exeArgs)
+			args = compilerArgs
 		}
 		
 		logger.info "Done TypeScript compilation."
-	}
-	
-	private String getExecutableArgs() {
-		List<String> compilerExecutableAndArgs = getCompilerExecutableAndArgs()
-		List<String> compilerArgs = compilerExecutableAndArgs.size() > 1 ? (compilerExecutableAndArgs.subList(1, compilerExecutableAndArgs.size())) : []
-		return (compilerArgs ? compilerArgs.join(' ') + ' ' : '') + '@' + tsCompilerArgs
-	}
-	
-	private List<String> getCompilerExecutableAndArgs() {
-		return Arrays.asList(compilerExecutable.split(" "))
 	}
 	
 	private void validate() {
