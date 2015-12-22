@@ -71,14 +71,15 @@ public class CompileTypeScript extends SourceTask {
 
 		File tsCompilerArgsFile = createTsCompilerArgsFile()
 		logger.debug("Contents of typescript compiler arguments file: " + tsCompilerArgsFile.text)
-		
-		String exe = getCompilerExecutableAndArgs().get(0)
-		String exeArgs = getExecutableArgs(tsCompilerArgsFile)
+
+		List<String> compilerExecutableAndArgs = compilerExecutable.split(" ").findAll { it.length() > 0 }
+		String exe = compilerExecutableAndArgs[0]
+		List<String> compilerArgs = compilerExecutableAndArgs.tail() + ('@' + tsCompilerArgs)
 		project.exec {
 			executable = exe
-			args(exeArgs)
+			args = compilerArgs
 		}
-		
+
 		logger.info "Done TypeScript compilation."
 	}
 
@@ -172,16 +173,6 @@ public class CompileTypeScript extends SourceTask {
 		}
 	}
 
-	private String getExecutableArgs(File tsCompilerArgsFile) {
-		List<String> compilerExecutableAndArgs = getCompilerExecutableAndArgs()
-		List<String> compilerArgs = compilerExecutableAndArgs.size() > 1 ? (compilerExecutableAndArgs.subList(1, compilerExecutableAndArgs.size())) : []
-		return (compilerArgs ? compilerArgs.join(' ') + ' ' : '') + '@' + tsCompilerArgsFile
-	}
-	
-	private List<String> getCompilerExecutableAndArgs() {
-		return Arrays.asList(compilerExecutable.split(" "))
-	}
-	
 	private void validate() {
 		if(sourcemap && inlineSourceMap) {
 			throw new InvalidUserDataException("Option 'sourcemap' cannot be specified with option 'inlineSourceMap'")
