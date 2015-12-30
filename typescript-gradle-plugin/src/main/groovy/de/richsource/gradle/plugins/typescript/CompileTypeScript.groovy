@@ -151,7 +151,9 @@ public class CompileTypeScript extends SourceTask {
 	}
 
 	private void addOptionsIfPresent(File tsCompilerArgsFile, Map<String, Object> potentialOptions) {
-		potentialOptions.each { String optionName, Object optionValue ->
+		for (Map.Entry<Integer, Integer> entry : potentialOptions.entrySet()) {
+			String optionName = entry.getKey()
+			Object optionValue = entry.getValue()
 			if(optionValue) {
 				addOption(tsCompilerArgsFile, optionName, optionValue)
 			}
