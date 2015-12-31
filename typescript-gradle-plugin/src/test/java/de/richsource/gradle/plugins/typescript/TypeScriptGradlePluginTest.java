@@ -18,8 +18,8 @@ package de.richsource.gradle.plugins.typescript;
 
 import static org.gradle.testkit.runner.TaskOutcome.FAILED;
 import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.gradle.testkit.runner.TaskOutcome.UP_TO_DATE;
+import static org.junit.Assert.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -27,11 +27,9 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.gradle.testkit.jarjar.org.apache.commons.io.filefilter.NameFileFilter;
 import org.gradle.testkit.runner.BuildResult;
@@ -49,6 +47,7 @@ public class TypeScriptGradlePluginTest {
 
 	@Before
 	public void setup() throws IOException {
+		testProjectDir.newFolder("src", "main", "ts");
 		buildFile = testProjectDir.newFile("build.gradle");
 		URL pluginClasspathResource = getClass().getClassLoader().getSystemResource("plugin-classpath.txt");
 		if (pluginClasspathResource == null) {
@@ -72,59 +71,27 @@ public class TypeScriptGradlePluginTest {
 	@Test
 	public void given_declarationOptionIsTrue_when_compileTypeScript_then_expectCompiledJsFileAndDeclarationFile()
 			throws IOException {
-		String buildFileContent = "plugins {\n" +
-				  "id 'typescript'\n" +
-				"}\n" +
-				"compileTypeScript {\n" +
-				  "declaration = true\n" +
-				  "target = \"ES5\"\n" +
-				"}";
-		writeFile(buildFile, buildFileContent);
+		Map<String,String> compilerOptions = new HashMap<String, String>();
+		compilerOptions.put("declaration", "true");
+		compilerOptions.put("target", "\"ES5\"");
+		createBuildFile(compilerOptions);
+		createTSFile("src/main/ts/test.ts", "Test");
 
-		testProjectDir.newFolder("src", "main", "ts");
-		File tsFile = testProjectDir.newFile("src/main/ts/test.ts");
-		writeFile(tsFile, "class Test {\n" +
-				"    greet(): void {\n" +
-				"        console.log(\"hello world\");\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"new Test().greet();");
-
-		BuildResult result = GradleRunner.create()
-				.withProjectDir(testProjectDir.getRoot())
-				.withArguments("compileTypeScript", "--info")
-				.withPluginClasspath(pluginClasspath)
-				.build();
+		BuildResult result = executeCompileTypeScriptTask();
 
 		assertEquals(SUCCESS, result.task(":compileTypeScript").getOutcome());
-
-		File tsOutputDir = new File(testProjectDir.getRoot(), "build/ts");
-		assertEquals(1, tsOutputDir.listFiles((FileFilter)new NameFileFilter("test.js")).length);
-		assertEquals(1, tsOutputDir.listFiles((FilenameFilter)new NameFileFilter("test.d.ts")).length);
+		assertFilesInDir(defaultOutputDir(), "test.js", "test.d.ts");
 	}
 
 	@Test
 	public void given_sourcemapAndInlineSourceMapOptionsBothPresent_when_compileTypeScript_then_expectValidationError()
 			throws IOException {
-		String buildFileContent = "plugins {\n" +
-				"id 'typescript'\n" +
-				"}\n" +
-				"compileTypeScript {\n" +
-				"sourcemap = true\n" +
-				"inlineSourceMap = true\n" +
-				"}";
-		writeFile(buildFile, buildFileContent);
+		Map<String,String> compilerOptions = new HashMap<String, String>();
+		compilerOptions.put("sourcemap", "true");
+		compilerOptions.put("inlineSourceMap", "true");
+		createBuildFile(compilerOptions);
 
-		testProjectDir.newFolder("src", "main", "ts");
-		File tsFile = testProjectDir.newFile("src/main/ts/test.ts");
-		writeFile(tsFile, "class Test {\n" +
-				"    greet(): void {\n" +
-				"        console.log(\"hello world\");\n" +
-				"    }\n" +
-				"}\n" +
-				"\n" +
-				"new Test().greet();");
+		createTSFile("src/main/ts/test.ts", "Test");
 
 		BuildResult result = GradleRunner.create()
 				.withProjectDir(testProjectDir.getRoot())
@@ -134,6 +101,138 @@ public class TypeScriptGradlePluginTest {
 
 		assertEquals(FAILED, result.task(":compileTypeScript").getOutcome());
 		assertTrue("validation error expected", result.getOutput().contains("Option 'sourcemap' cannot be specified with option 'inlineSourceMap'"));
+	}
+
+	@Test
+	public void given_noSourceFile_when_compileTypeScript_then_expectUpToDate()
+			throws IOException {
+		createBuildFile(new HashMap<String, String>());
+
+		BuildResult result = executeCompileTypeScriptTask();
+
+		assertEquals(UP_TO_DATE, result.task(":compileTypeScript").getOutcome());
+	}
+
+	@Test
+	public void given_twoSourceFiles_when_compileTypeScript_then_expectTwoOutputFiles()
+			throws IOException {
+		createBuildFile(new HashMap<String, String>());
+		createTSFile("src/main/ts/test.ts", "Test");
+		createTSFile("src/main/ts/test2.ts", "Test2");
+
+		BuildResult result = executeCompileTypeScriptTask();
+
+		assertEquals(SUCCESS, result.task(":compileTypeScript").getOutcome());
+		assertFilesInDir(defaultOutputDir(), "test.js", "test2.js");
+	}
+
+	@Test
+	public void given_twoSourceFilesAndOutOption_when_compileTypeScript_then_expectSingleOutputFile()
+			throws IOException {
+		Map<String,String> compilerOptions = new HashMap<String, String>();
+		compilerOptions.put("out", "file(\"build/js/out.js\")");
+		createBuildFile(compilerOptions);
+		createTSFile("src/main/ts/test.ts", "Test");
+		createTSFile("src/main/ts/test2.ts", "Test2");
+
+		BuildResult result = executeCompileTypeScriptTask();
+
+		assertEquals(SUCCESS, result.task(":compileTypeScript").getOutcome());
+		File tsOutputDir = new File(testProjectDir.getRoot(), "build/js");
+		assertFilesInDir(tsOutputDir, "out.js");
+	}
+
+	@Test
+	public void given_multipleFlagsEnabled_when_compileTypeScript_then_expectSuccess()
+			throws IOException {
+		List<String> flags = Arrays.asList("declaration", "noImplicitAny", "noResolve", "removeComments",
+				"noEmitOnError", "experimentalDecorators", "preserveConstEnums",
+				"suppressImplicitAnyIndexErrors", "noEmitHelpers", "inlineSourceMap", "inlineSources", "emitBOM",
+				"emitDecoratorMetadata", "stripInternal");
+		Map<String,String> compilerOptions = new HashMap<String, String>();
+		for(String flag : flags) {
+			compilerOptions.put(flag, "true");
+		}
+		createBuildFile(compilerOptions);
+		createTSFile("src/main/ts/test.ts", "Test");
+
+		BuildResult result = executeCompileTypeScriptTask();
+
+		assertEquals(SUCCESS, result.task(":compileTypeScript").getOutcome());
+		assertFilesInDir(defaultOutputDir(), "test.js", "test.d.ts");
+	}
+
+	@Test
+	public void given_sourcemapFlagEnabled_when_compileTypeScript_then_expectJsAndMapFile()
+			throws IOException {
+		Map<String,String> compilerOptions = new HashMap<String, String>();
+		compilerOptions.put("sourcemap", "true");
+		createBuildFile(compilerOptions);
+		createTSFile("src/main/ts/test.ts", "Test");
+
+		BuildResult result = executeCompileTypeScriptTask();
+
+		assertEquals(SUCCESS, result.task(":compileTypeScript").getOutcome());
+		assertFilesInDir(defaultOutputDir(), "test.js", "test.js.map");
+	}
+
+	private BuildResult executeCompileTypeScriptTask() {
+		return GradleRunner.create()
+                    .withProjectDir(testProjectDir.getRoot())
+                    .withArguments("compileTypeScript", "--info")
+                    .withPluginClasspath(pluginClasspath)
+                    .build();
+	}
+
+	@Test
+	public void when_compileTypeScriptSucceeds_expect_noTsCompilerArgsFileRemains()
+			throws IOException {
+		createBuildFile(new HashMap<String, String>());
+		createTSFile("src/main/ts/test.ts", "Test");
+
+		BuildResult result = executeCompileTypeScriptTask();
+
+		assertEquals(SUCCESS, result.task(":compileTypeScript").getOutcome());
+		File tempDir = new File(System.getProperty("java.io.tmpdir"));
+		for(String file : tempDir.list()) {
+			assertFalse(file.matches("tsCompiler-.*\\.args"));
+		}
+	}
+
+	private void assertFilesInDir(File directory, String... filenames) {
+		assertNotNull(directory.listFiles());
+		assertEquals(filenames.length, directory.listFiles().length);
+		for(String filename : filenames) {
+			assertEquals(
+					"expected file " + filename + " in directory " + directory,
+					1,
+					directory.listFiles((FileFilter) new NameFileFilter(filename)).length);
+		}
+	}
+
+	private void createTSFile(String pathAndFilename, String className) throws IOException {
+		File tsFile = testProjectDir.newFile(pathAndFilename);
+		writeFile(tsFile, "class " + className + " {\n" +
+				"    greet(): void {\n" +
+				"        console.log(\"hello world\");\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"new Test().greet();");
+	}
+
+	private void createBuildFile(Map<String,String> compilerOptions) throws IOException {
+		StringBuilder buildFileContent = new StringBuilder("plugins {\n" +
+				"id 'typescript'\n" +
+				"}\n" +
+				"compileTypeScript {\n");
+		for (Map.Entry<String,String> entry : compilerOptions.entrySet()) {
+			String optionName = entry.getKey();
+			Object optionValue = entry.getValue();
+			buildFileContent.append(optionName + " = " + optionValue + "\n");
+		}
+		buildFileContent.append("}");
+		writeFile(buildFile, buildFileContent.toString());
 	}
 
 	private void writeFile(File destination, String content) throws IOException {
@@ -146,5 +245,9 @@ public class TypeScriptGradlePluginTest {
 				output.close();
 			}
 		}
+	}
+
+	private File defaultOutputDir() {
+		return new File(testProjectDir.getRoot(), "build/ts");
 	}
 }
