@@ -16,6 +16,23 @@
 
 package de.richsource.gradle.plugins.typescript;
 
+import static org.gradle.testkit.runner.TaskOutcome.FAILED;
+import static org.gradle.testkit.runner.TaskOutcome.SUCCESS;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.gradle.testkit.jarjar.org.apache.commons.io.filefilter.NameFileFilter;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
@@ -23,15 +40,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.*;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.gradle.testkit.runner.TaskOutcome.*;
 
 public class TypeScriptGradlePluginTest {
 	@Rule
@@ -87,7 +95,6 @@ public class TypeScriptGradlePluginTest {
 				.withProjectDir(testProjectDir.getRoot())
 				.withArguments("compileTypeScript", "--info")
 				.withPluginClasspath(pluginClasspath)
-				.forwardOutput()
 				.build();
 
 		assertEquals(SUCCESS, result.task(":compileTypeScript").getOutcome());
@@ -95,6 +102,38 @@ public class TypeScriptGradlePluginTest {
 		File tsOutputDir = new File(testProjectDir.getRoot(), "build/ts");
 		assertEquals(1, tsOutputDir.listFiles((FileFilter)new NameFileFilter("test.js")).length);
 		assertEquals(1, tsOutputDir.listFiles((FilenameFilter)new NameFileFilter("test.d.ts")).length);
+	}
+
+	@Test
+	public void given_sourcemapAndInlineSourceMapOptionsBothPresent_when_compileTypeScript_then_expectValidationError()
+			throws IOException {
+		String buildFileContent = "plugins {\n" +
+				"id 'typescript'\n" +
+				"}\n" +
+				"compileTypeScript {\n" +
+				"sourcemap = true\n" +
+				"inlineSourceMap = true\n" +
+				"}";
+		writeFile(buildFile, buildFileContent);
+
+		testProjectDir.newFolder("src", "main", "ts");
+		File tsFile = testProjectDir.newFile("src/main/ts/test.ts");
+		writeFile(tsFile, "class Test {\n" +
+				"    greet(): void {\n" +
+				"        console.log(\"hello world\");\n" +
+				"    }\n" +
+				"}\n" +
+				"\n" +
+				"new Test().greet();");
+
+		BuildResult result = GradleRunner.create()
+				.withProjectDir(testProjectDir.getRoot())
+				.withArguments("compileTypeScript", "--info")
+				.withPluginClasspath(pluginClasspath)
+				.buildAndFail();
+
+		assertEquals(FAILED, result.task(":compileTypeScript").getOutcome());
+		assertTrue("validation error expected", result.getOutput().contains("Option 'sourcemap' cannot be specified with option 'inlineSourceMap'"));
 	}
 
 	private void writeFile(File destination, String content) throws IOException {
