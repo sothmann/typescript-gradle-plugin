@@ -31,7 +31,7 @@ As this is not a core Gradle plugin, you have to ensure, that Gradle knows how t
             mavenCentral()
         }
         dependencies {
-            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.5'
+            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.7'
         }
     }
 
@@ -81,6 +81,16 @@ Here is a list of the available configuration options of the _compileTypeScript_
 * `noEmitHelpers` - (boolean) Do not emit helpers like `__extends`
 * `inlineSourceMap` - (boolean) Causes source map files to be written inline in the generated .js files instead of in a independent .js.map file
 * `inlineSources` - (boolean) Allows for additionally inlining the source .ts file into the .js file when used in combination with `inlineSourceMap`
+* `watch` - (boolean) Watch input files
+* `charset` - (String) The character set of the input files
+* `emitBOM` - (boolean) Emit a UTF-8 Byte Order Mark (BOM) in the beginning of output files
+* `emitDecoratorMetadata` - (boolean) Emit design-type metadata for decorated declarations in source
+* `isolatedModules` - (boolean) Unconditionally emit imports for unresolved files
+* `jsx` - (de.richsource.gradle.plugins.typescript.Jsx) Specify JSX code generation (`PRESERVE` or `REACT`)
+* `locale` - (String) The locale to use to show error messages, e.g. `en-us`
+* `moduleResolution` - (de.richsource.gradle.plugins.typescript.ModuleResoltion) Specify module resolution strategy (`NODE` or `CLASSIC`)
+* `noLib` - (boolean) Do not include the default library file (`lib.d.ts`)
+* `stripInternal` - (boolean) Do not emit declarations for code that has an `/** @internal */` JSDoc annotation
 
 # Integrating the compiled files into a WAR file (for Java Webapps)
 
