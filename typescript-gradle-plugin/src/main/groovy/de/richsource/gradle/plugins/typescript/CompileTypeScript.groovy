@@ -56,7 +56,7 @@ public class CompileTypeScript extends SourceTask {
 	@Input @Optional boolean emitDecoratorMetadata
 	@Input @Optional boolean isolatedModules
 	@Input @Optional Jsx jsx
-	@Input @Optional locale
+	@Input @Optional String locale
 	@Input @Optional ModuleResoltion moduleResolution
 	@Input @Optional boolean noLib
 	@Input @Optional boolean stripInternal
@@ -80,6 +80,9 @@ public class CompileTypeScript extends SourceTask {
 		}
 
 		logger.info "Done TypeScript compilation."
+		if(tsCompilerArgsFile.exists()) {
+			tsCompilerArgsFile.delete()
+		}
 	}
 
 	private File createTsCompilerArgsFile() {
