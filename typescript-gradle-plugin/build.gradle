@@ -1,5 +1,10 @@
+plugins {
+	id "com.gradle.plugin-publish" version "0.9.2"
+}
+
 repositories {
 	mavenCentral()
+	jcenter()
 }
 
 apply plugin: 'groovy'
@@ -87,5 +92,24 @@ publishing {
 		maven {
 			url new File(rootProject.projectDir, 'repo').toURI()
 		}
+	}
+}
+
+pluginBundle {
+	website = 'https://github.com/sothmann/typescript-gradle-plugin'
+	vcsUrl = 'https://github.com/sothmann/typescript-gradle-plugin'
+	description = 'This plugin makes it easy to build TypeScript projects using Gradle. Among other things, the plugin provides a task to run the TypeScript compiler.'
+	tags = ['typescript']
+
+	plugins {
+		typescriptPlugin {
+			id = 'de.richsource.gradle.plugins.typescript'
+			displayName = 'TypeScript Gradle Plugin'
+		}
+	}
+
+	mavenCoordinates {
+		groupId = "de.richsource.gradle.plugins"
+		artifactId = "typescript-gradle-plugin"
 	}
 }
