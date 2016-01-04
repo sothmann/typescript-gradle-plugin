@@ -3,42 +3,50 @@
 This plugin makes it easy to build TypeScript projects using Gradle.
 Among other things, the plugin provides a task to run the TypeScript compiler.
 
+
 # Examples
 
 Several example projects can be found in [/examples](examples).
+
 
 # Prerequisites
 
 You need to have installed node.js and installed the typescript node module:
 
 	npm install -g typescript
-	
+
 Alternatively on windows you can install the Typescript SDK and configure the `compilerExecutable` config option to `tsc` - see *Available configuration options*.
+
 
 # Quickstart
 
 This will guide you through the steps needed to set up typescript-gradle-plugin for a TypeScript application project using Maven/Gradle standard layout.
 
+
 ## Plugin dependency
 
-As this is not a core Gradle plugin, you have to ensure, that Gradle knows how to get the plugin. Do do this, add the following lines to your build.gradle:
+Build script snippet for use in all Gradle versions:
 
-    buildscript {
-        repositories {
-            maven {
-                url 'https://dl.bintray.com/sothmann/gradle-plugins'
-            }
-            mavenCentral()
-        }
-        dependencies {
-            classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.7'
-        }
-    }
-
-Next, apply the plugin.
-
-	apply plugin: "typescript"
+	buildscript {
+	  repositories {
+	    maven {
+	      url "https://plugins.gradle.org/m2/"
+	    }
+	  }
+	  dependencies {
+	    classpath "de.richsource.gradle.plugins:typescript-gradle-plugin:1.7"
+	  }
+	}
 	
+	apply plugin: "de.richsource.gradle.plugins.typescript"
+	
+Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
+
+	plugins {
+	  id "de.richsource.gradle.plugins.typescript" version "1.7"
+	}
+
+
 ## Configuring the TypeScript compile task
 
 You can configure the TypeScript compile task as shown below:
@@ -47,10 +55,12 @@ You can configure the TypeScript compile task as shown below:
 		sourcemap = true
 		// additional configuration options
 	}
-	
+
+
 ## Run the TypeScript compiler
 
 	gradle compileTypeScript
+
 
 # Available configuration options
 
@@ -92,6 +102,7 @@ Here is a list of the available configuration options of the _compileTypeScript_
 * `noLib` - (boolean) Do not include the default library file (`lib.d.ts`)
 * `stripInternal` - (boolean) Do not emit declarations for code that has an `/** @internal */` JSDoc annotation
 
+
 # Integrating the compiled files into a WAR file (for Java Webapps)
 
 If you are integrating TypeScript into a Java web application, you can easily integrate the compiled files into the WAR file.
@@ -106,6 +117,7 @@ In the example below, the compiled files will be put into the js directory in th
         		from compileTypeScript.outputs
     		}
 	}
+
 
 # Configuring multiple source directories
 

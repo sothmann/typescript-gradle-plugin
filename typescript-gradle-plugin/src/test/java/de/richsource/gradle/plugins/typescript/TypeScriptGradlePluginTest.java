@@ -223,7 +223,7 @@ public class TypeScriptGradlePluginTest {
 
 	private void createBuildFile(Map<String,String> compilerOptions) throws IOException {
 		StringBuilder buildFileContent = new StringBuilder("plugins {\n" +
-				"id 'typescript'\n" +
+				"id 'de.richsource.gradle.plugins.typescript'\n" +
 				"}\n" +
 				"compileTypeScript {\n");
 		for (Map.Entry<String,String> entry : compilerOptions.entrySet()) {

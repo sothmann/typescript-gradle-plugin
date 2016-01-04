@@ -24,7 +24,7 @@ buildscript {
 		}
 	}
 	dependencies {
-		classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.7'
+		classpath 'de.richsource.gradle.plugins:typescript-gradle-plugin:1.7.1'
 	}
 }
 
