@@ -34,7 +34,7 @@ Build script snippet for use in all Gradle versions:
 	    }
 	  }
 	  dependencies {
-	    classpath "de.richsource.gradle.plugins:typescript-gradle-plugin:1.7"
+	    classpath "de.richsource.gradle.plugins:typescript-gradle-plugin:1.7.1"
 	  }
 	}
 	
@@ -43,7 +43,7 @@ Build script snippet for use in all Gradle versions:
 Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
 
 	plugins {
-	  id "de.richsource.gradle.plugins.typescript" version "1.7"
+	  id "de.richsource.gradle.plugins.typescript" version "1.7.1"
 	}
 
 
