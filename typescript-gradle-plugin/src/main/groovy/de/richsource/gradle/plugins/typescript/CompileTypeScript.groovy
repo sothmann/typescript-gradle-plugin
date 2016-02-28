@@ -16,7 +16,8 @@
 
 package de.richsource.gradle.plugins.typescript
 
-import org.gradle.api.file.FileTree;
+import org.gradle.api.file.FileTree
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.SourceTask
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional;
@@ -28,7 +29,8 @@ import org.apache.tools.ant.taskdefs.condition.Os
 public class CompileTypeScript extends SourceTask {
 
 	@OutputDirectory @Optional File outputDir;
-	@Input @Optional File out
+	@OutputFile @Optional File out
+	@OutputFile @Optional outFile
 	@Input @Optional Module module
 	@Input @Optional Target target
 	@Input @Optional boolean declaration
@@ -44,7 +46,7 @@ public class CompileTypeScript extends SourceTask {
 	@Input @Optional boolean experimentalDecorators
 	@Input @Optional Newline newline
 	@Input @Optional boolean preserveConstEnums
-	@Input @Optional File projectFileDir
+	@Input @Optional File projectFile
 	@Input @Optional File rootDir
 	@Input @Optional boolean suppressImplicitAnyIndexErrors
 	@Input @Optional boolean noEmitHelpers
@@ -60,6 +62,20 @@ public class CompileTypeScript extends SourceTask {
 	@Input @Optional ModuleResoltion moduleResolution
 	@Input @Optional boolean noLib
 	@Input @Optional boolean stripInternal
+	@Input @Optional boolean diagnostics
+	@Input @Optional String reactNamespace
+	@Input @Optional boolean listFiles
+	@Input @Optional boolean skipDefaultLibCheck
+	@Input @Optional boolean pretty
+	@Input @Optional boolean suppressExcessPropertyErrors
+	@Input @Optional boolean allowUnusedLabels
+	@Input @Optional boolean noImplicitReturns
+	@Input @Optional boolean noFallthroughCasesInSwitch
+	@Input @Optional boolean allowUnreachableCode
+	@Input @Optional boolean forceConsistentCasingInFileNames
+	@Input @Optional boolean allowSyntheticDefaultImports
+	@Input @Optional boolean allowJs
+	@Input @Optional boolean noImplicitUseStrict
 	@Input String compilerExecutable = Os.isFamily(Os.FAMILY_WINDOWS) ? "cmd /c tsc.cmd" : "tsc"
 
 	@TaskAction
@@ -108,13 +124,27 @@ public class CompileTypeScript extends SourceTask {
 			'emitDecoratorMetadata': emitDecoratorMetadata,
 			'isolatedModules': isolatedModules,
 			'noLib': noLib,
-			'stripInternal': stripInternal
+			'stripInternal': stripInternal,
+			'diagnostics': diagnostics,
+			'listFiles': listFiles,
+			'skipDefaultLibCheck': skipDefaultLibCheck,
+			'pretty': pretty,
+			'suppressExcessPropertyErrors': suppressExcessPropertyErrors,
+			'allowUnusedLabels': allowUnusedLabels,
+			'noImplicitReturns': noImplicitReturns,
+			'noFallthroughCasesInSwitch': noFallthroughCasesInSwitch,
+			'allowUnreachableCode': allowUnreachableCode,
+			'forceConsistentCasingInFileNames': forceConsistentCasingInFileNames,
+			'allowSyntheticDefaultImports': allowSyntheticDefaultImports,
+			'allowJs': allowJs,
+			'noImplicitUseStrict': noImplicitUseStrict
 		])
 
 		addOptionsIfPresent(tsCompilerArgsFile, [
 			'outDir': outputDir,
 			'out': out,
-			'project': projectFileDir,
+			'outFile': outFile,
+			'project': projectFile,
 			'rootDir': rootDir,
 			'mapRoot': mapRoot,
 			'sourceRoot': sourceRoot,
@@ -125,20 +155,21 @@ public class CompileTypeScript extends SourceTask {
 			'target': target ? target.name() : null,
 			'newLine': newline ? newline.name() : null,
 			'jsx': jsx ? jsx.name().toLowerCase() : null,
+			'reactNamespace': reactNamespace,
 			'moduleResolution': moduleResolution ? moduleResolution.name().toLowerCase() : null
 		])
 
-		addSourceFilesIfPresent(tsCompilerArgsFile, source, projectFileDir)
+		addSourceFilesIfPresent(tsCompilerArgsFile, source, projectFile)
 
 		return tsCompilerArgsFile
 	}
 
-	private void addSourceFilesIfPresent(File tsCompilerArgsFile, FileTree source, File projectFileDir) {
+	private void addSourceFilesIfPresent(File tsCompilerArgsFile, FileTree source, File projectFile) {
 		List<String> files = source.collect { File f -> return "\"${f.toString();}\"" };
 		logger.debug("TypeScript files to compile: " + files.join(" "));
 		if (files) {
-			if (projectFileDir) {
-				logger.info("Source provided in combination with projectFileDir. Source option will be ignored.")
+			if (projectFile) {
+				logger.info("Source provided in combination with projectFile. Source option will be ignored.")
 			} else {
 				tsCompilerArgsFile.append(" " + files.join(" "))
 			}

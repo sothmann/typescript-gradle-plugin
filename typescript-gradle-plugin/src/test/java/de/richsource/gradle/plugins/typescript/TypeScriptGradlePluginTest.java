@@ -31,6 +31,8 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.gradle.testkit.jarjar.org.apache.commons.io.filefilter.NameFileFilter;
 import org.gradle.testkit.runner.BuildResult;
 import org.gradle.testkit.runner.GradleRunner;
@@ -104,6 +106,26 @@ public class TypeScriptGradlePluginTest {
 	}
 
 	@Test
+	public void given_moduleAmdAndOutDir_when_compileTypeScript_then_expectAmdModuleEmittedInOutDir()
+		throws IOException {
+		Map<String,String> compilerOptions = new HashMap<String, String>();
+		compilerOptions.put("module", "\"AMD\"");
+		compilerOptions.put("outputDir", "file(\"build/js\")");
+		createBuildFile(compilerOptions);
+
+		createTSFile("src/main/ts/test.ts", "TestClass", "import SecondTestClass from \"test2\";\n", "new SecondTestClass();");
+		createTSFile("src/main/ts/test2.ts", "SecondTestClass", null, "export default SecondTestClass;");
+
+		BuildResult result = executeCompileTypeScriptTask();
+
+		assertEquals(SUCCESS, result.task(":compileTypeScript").getOutcome());
+		File tsOutputDir = new File(testProjectDir.getRoot(), "build/js");
+		assertFilesInDir(tsOutputDir, "test.js", "test2.js");
+		assertFileContains(new File(tsOutputDir, "test.js"), "TestClass", "define([\"require\", \"exports\", \"test2\"]");
+		assertFileContains(new File(tsOutputDir, "test2.js"), "define([\"require\", \"exports\"]", "exports[\"default\"] = SecondTestClass;");
+	}
+
+	@Test
 	public void given_noSourceFile_when_compileTypeScript_then_expectUpToDate()
 			throws IOException {
 		createBuildFile(new HashMap<String, String>());
@@ -143,12 +165,41 @@ public class TypeScriptGradlePluginTest {
 	}
 
 	@Test
+	public void given_TsAndJsFilesAndOutFileAndAllowJsOption_when_compileTypeScript_then_expectSingleOutputFile()
+		throws IOException {
+		Map<String,String> compilerOptions = new HashMap<String, String>();
+		compilerOptions.put("outFile", "file(\"build/js/out.js\")");
+		compilerOptions.put("allowJs", "true");
+		compilerOptions.put("module", "\"AMD\"");
+		createBuildFile(compilerOptions);
+		createTSFile("src/main/ts/typescript.ts", "TypeScriptClass", "import js from \"javascript\";\n", null);
+		createJSFile("src/main/ts/javascript.js", "jsFunction");
+
+		BuildResult result = executeCompileTypeScriptTask();
+
+		assertEquals(SUCCESS, result.task(":compileTypeScript").getOutcome());
+		File tsOutputDir = new File(testProjectDir.getRoot(), "build/js");
+		assertFilesInDir(tsOutputDir, "out.js");
+		assertFileContains(new File(tsOutputDir, "out.js"), "TypeScriptClass", "jsFunction", "define(\"javascript\"", "define(\"typescript\"");
+	}
+
+	private void assertFileContains(File file, String... expectedStrings) throws IOException {
+		String fileContents = FileUtils.readFileToString(file);
+		for (String expectedString : expectedStrings) {
+			assertTrue("expected string " + expectedString, fileContents.contains(expectedString));
+		}
+	}
+
+	@Test
 	public void given_multipleFlagsEnabled_when_compileTypeScript_then_expectSuccess()
 			throws IOException {
 		List<String> flags = Arrays.asList("declaration", "noImplicitAny", "noResolve", "removeComments",
 				"noEmitOnError", "experimentalDecorators", "preserveConstEnums",
 				"suppressImplicitAnyIndexErrors", "noEmitHelpers", "inlineSourceMap", "inlineSources", "emitBOM",
-				"emitDecoratorMetadata", "stripInternal");
+				"emitDecoratorMetadata", "stripInternal", "listFiles", "skipDefaultLibCheck", "pretty",
+				"suppressExcessPropertyErrors", "allowUnusedLabels", "noImplicitReturns", "noFallthroughCasesInSwitch",
+				"allowUnreachableCode", "forceConsistentCasingInFileNames", "allowSyntheticDefaultImports",
+				"noImplicitUseStrict");
 		Map<String,String> compilerOptions = new HashMap<String, String>();
 		for(String flag : flags) {
 			compilerOptions.put(flag, "true");
@@ -211,14 +262,25 @@ public class TypeScriptGradlePluginTest {
 	}
 
 	private void createTSFile(String pathAndFilename, String className) throws IOException {
+		createTSFile(pathAndFilename, className, null, null);
+	}
+
+	private void createTSFile(String pathAndFilename, String className, String optionalHeader, String optionalFooter) throws IOException {
 		File tsFile = testProjectDir.newFile(pathAndFilename);
-		writeFile(tsFile, "class " + className + " {\n" +
+		writeFile(tsFile, (optionalHeader!=null?optionalHeader:"") + "class " + className + " {\n" +
 				"    greet(): void {\n" +
 				"        console.log(\"hello world\");\n" +
 				"    }\n" +
 				"}\n" +
 				"\n" +
-				"new Test().greet();");
+				"new " + className + "().greet();\n" + (optionalFooter!=null?optionalFooter:""));
+	}
+
+	private void createJSFile(String pathAndFilename, String functionName) throws IOException {
+		File jsFile = testProjectDir.newFile(pathAndFilename);
+		writeFile(jsFile, "export default function " + functionName + "() {\n" +
+			"    console.log(\"hello world\");\n" +
+			"}\n");
 	}
 
 	private void createBuildFile(Map<String,String> compilerOptions) throws IOException {

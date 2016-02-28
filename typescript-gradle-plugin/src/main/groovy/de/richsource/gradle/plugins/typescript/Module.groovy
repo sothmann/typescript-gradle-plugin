@@ -17,5 +17,5 @@
 package de.richsource.gradle.plugins.typescript
 
 enum Module {
-	AMD, COMMONJS, SYSTEM, UMD
+	AMD, COMMONJS, SYSTEM, UMD, ES6, ES2015
 }
