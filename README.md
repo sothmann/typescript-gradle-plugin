@@ -4,12 +4,86 @@ This plugin makes it easy to build TypeScript projects using Gradle.
 Among other things, the plugin provides a task to run the TypeScript compiler.
 
 
-# Examples
+# Quickstart
 
-Several example projects can be found in [/examples](examples).
+This will guide you through the steps needed to set up typescript-gradle-plugin for a TypeScript application project
+using Maven/Gradle standard layout.  
+You can either use this plugin in combination with the Gradle Node plugin (recommended) or alternatively
+use it standalone with a local Node and TypeScript installation.
 
 
-# Prerequisites
+## Usage with Node plugin
+
+This is the recommended way to use the TypeScript Gradle plugin.
+Using the [Node plugin](https://github.com/srs/gradle-node-plugin) has the advantage
+that you do not need to have Node or TypeScript installed manually on the system
+to execute the TypeScript compile task.
+You can define a TypeScript compiler version which gets downloaded automatically.
+
+
+### Add plugin dependencies
+
+Add a plugin dependency for the Node plugin and for the TypeScript Gradle plugin.
+
+If you are using Gradle 2.1 or later, define the plugin dependency as follows:
+
+	plugins {
+	  id "com.moowork.node" version "0.12"
+	  id "de.richsource.gradle.plugins.typescript" version "1.8.0"
+	}
+
+If you are using Gradle 2.0 or earlier, define the plugin dependency as follows:
+
+	buildscript {
+	  repositories {
+	    maven {
+	      url "https://plugins.gradle.org/m2/"
+	    }
+	  }
+	  dependencies {
+	    classpath "com.moowork.gradle:gradle-node-plugin:0.12"
+	    classpath "de.richsource.gradle.plugins:typescript-gradle-plugin:1.8.0"
+	  }
+	}
+	
+	apply plugin: 'com.moowork.node'
+	apply plugin: 'de.richsource.gradle.plugins.typescript'
+
+
+### Configure the TypeScript task to use the Node executable
+
+Configure the TypeScript task to use the Node executable as follows:
+
+	import com.moowork.gradle.node.NodeExtension
+	import com.moowork.gradle.node.variant.VariantBuilder
+	
+	node {
+	  download = true
+	}
+	
+	String nodeExecutable() {
+	  NodeExtension nodeExt = NodeExtension.get(project)
+	  return new VariantBuilder(nodeExt).build().nodeExec
+	}
+	
+	compileTypeScript {
+	  compilerExecutable "${nodeExecutable()} node_modules/typescript/lib/tsc.js"
+	  dependsOn "npmInstall"
+	}
+
+
+### Create package.json with TypeScript version
+
+Create a `package.json` file next to the `build.gradle` file and declare the TypeScript compiler version to use
+as follows:
+
+	{ "dependencies": { "typescript": "1.8.7" } }
+
+
+## Usage with local Node and TypeScript installation
+
+This is not the recommended way of using the plugin. You should prefer to use it with the Node plugin.
+But if you have good reasons to do so, here is how...
 
 You need to have installed node.js and installed the typescript node module:
 
@@ -18,14 +92,16 @@ You need to have installed node.js and installed the typescript node module:
 Alternatively on windows you can install the Typescript SDK and configure the `compilerExecutable` config option to `tsc` - see *Available configuration options*.
 
 
-# Quickstart
+### Add plugin dependency
 
-This will guide you through the steps needed to set up typescript-gradle-plugin for a TypeScript application project using Maven/Gradle standard layout.
+If you are using Gradle 2.1 or later, define the plugin dependency as follows:
+
+	plugins {
+	  id "de.richsource.gradle.plugins.typescript" version "1.8.0"
+	}
 
 
-## Plugin dependency
-
-Build script snippet for use in all Gradle versions:
+If you are using Gradle 2.0 or earlier, define the plugin dependency as follows:
 
 	buildscript {
 	  repositories {
@@ -39,12 +115,6 @@ Build script snippet for use in all Gradle versions:
 	}
 	
 	apply plugin: "de.richsource.gradle.plugins.typescript"
-	
-Build script snippet for new, incubating, plugin mechanism introduced in Gradle 2.1:
-
-	plugins {
-	  id "de.richsource.gradle.plugins.typescript" version "1.8.0"
-	}
 
 
 ## Configuring the TypeScript compile task
@@ -118,6 +188,11 @@ Here is a list of the available configuration options of the _compileTypeScript_
 | `allowSyntheticDefaultImports`     | `boolean` | Allow default imports from modules with no default export. This does not affect code emit, just typechecking. |
 | `allowJs`                          | `boolean` | Allow JavaScript files to be compiled |
 | `noImplicitUseStrict`              | `boolean` | Do not emit "use strict" directives in module output |
+
+
+# Examples
+
+Several example projects can be found in [/examples](examples).
 
 
 # Integrating the compiled files into a WAR file (for Java Webapps)
